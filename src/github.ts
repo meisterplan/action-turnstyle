@@ -1,4 +1,4 @@
-import { Octokit } from "@octokit/rest";
+import { Octokit, RestEndpointMethodTypes } from "@octokit/rest";
 import { debug, warning } from "@actions/core";
 
 export interface Workflow {
@@ -19,7 +19,7 @@ export interface GitHub {
     repo: string,
     branch: string | undefined,
     workflow_id: number
-  ) => Promise<Array<Run>>;
+  ) => Promise<Run[]>;
 }
 
 export class OctokitGitHub implements GitHub {
@@ -48,13 +48,15 @@ export class OctokitGitHub implements GitHub {
     });
   }
 
-  workflows = async (owner: string, repo: string) =>
-    this.octokit.paginate(
-      this.octokit.actions.listRepoWorkflows.endpoint.merge({
-        owner,
-        repo,
-      })
+  workflows = async (owner: string, repo: string) => {
+    const options: RestEndpointMethodTypes["actions"]["listRepoWorkflows"]["parameters"] = {
+      owner,
+      repo,
+    };
+    return this.octokit.paginate<Workflow>(
+      this.octokit.actions.listRepoWorkflows.endpoint.merge(options)
     );
+  };
 
   runs = async (
     owner: string,
@@ -62,18 +64,14 @@ export class OctokitGitHub implements GitHub {
     branch: string | undefined,
     workflow_id: number
   ) => {
-    const options: Octokit.EndpointOptions = {
+    const options: RestEndpointMethodTypes["actions"]["listWorkflowRuns"]["parameters"] = {
       owner,
       repo,
       workflow_id,
       status: "in_progress",
+      branch,
     };
-
-    if (branch) {
-      options.branch = branch;
-    }
-
-    return this.octokit.paginate(
+    return this.octokit.paginate<Run>(
       this.octokit.actions.listWorkflowRuns.endpoint.merge(options)
     );
   };
