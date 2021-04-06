@@ -1,5 +1,5 @@
-import { Run, OctokitGitHub, GitHub } from "./github";
-import { Input, parseInput } from "./input";
+import { GitHub } from "./github";
+import { Input } from "./input";
 import { setOutput } from "@actions/core";
 
 export interface Wait {
@@ -29,7 +29,7 @@ export class Waiter implements Wait {
       this.input.continueAfterSeconds &&
       (secondsSoFar || 0) >= this.input.continueAfterSeconds
     ) {
-      this.info(`🤙Exceeded wait seconds. Continuing...`);
+      this.info(`🤙 Exceeded wait seconds. Continuing...`);
       setOutput("force_continued", "1");
       return secondsSoFar || 0;
     }
@@ -38,7 +38,7 @@ export class Waiter implements Wait {
       this.input.abortAfterSeconds &&
       (secondsSoFar || 0) >= this.input.abortAfterSeconds
     ) {
-      this.info(`🛑Exceeded wait seconds. Aborting...`);
+      this.info(`🛑 Exceeded wait seconds. Aborting...`);
       setOutput("force_continued", "");
       throw new Error(`Aborted after waiting ${secondsSoFar} seconds`);
     }
@@ -51,14 +51,18 @@ export class Waiter implements Wait {
     );
     const previousRuns = runs
       .filter((run) => run.id < this.input.runId)
+      .filter((run) => ["in_progress", "queued"].includes(run.status))
       .sort((a, b) => b.id - a.id);
     if (!previousRuns || !previousRuns.length) {
       setOutput("force_continued", "");
+      this.info(`✅ No uncompleted runs. Continuing...`);
       return;
     }
 
     const previousRun = previousRuns[0];
-    this.info(`✋Awaiting run ${previousRun.html_url} ...`);
+    this.info(
+      `✋ ${previousRuns.length} uncompleted runs. Awaiting run ${previousRun.html_url} to complete (currently ${previousRun.status})...`
+    );
     await new Promise((resolve) =>
       setTimeout(resolve, this.input.pollIntervalSeconds * 1000)
     );

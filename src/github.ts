@@ -68,11 +68,10 @@ export class OctokitGitHub implements GitHub {
       owner,
       repo,
       workflow_id,
-      status: "in_progress",
       branch,
+      per_page: 100,
     };
-    return this.octokit.paginate<Run>(
-      this.octokit.actions.listWorkflowRuns.endpoint.merge(options)
-    );
+    return (await this.octokit.actions.listWorkflowRuns(options)).data
+      .workflow_runs;
   };
 }

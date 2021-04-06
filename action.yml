@@ -2,20 +2,25 @@
 name: 'action turnstyle'
 description: 'A GitHub Action for serializing workflow runs'
 author: 'softprops'
-env:
-  'GITHUB_TOKEN': 'Repository token provided by Github Actions secrets'
 runs:
   using: 'node12'
   main: 'dist/index.js'
 inputs:
   poll-interval-seconds:
     description: "Number of seconds to wait in between checks for previous run completion (defaults to 60)"
+    required: false
   continue-after-seconds:
     description: "Maximum number of seconds to wait before moving forward (unbound by default). Mutually exclusive with abort-after-seconds"
+    required: false
   abort-after-seconds:
     description: "Maximum number of seconds to wait before failing the step (unbound by default). Mutually exclusive with continue-after-seconds"
+    required: false
   same-branch-only:
     description: "Only wait on other runs from the same branch (defaults to true)"
+    required: false
+  github-token:
+    description: "The GITHUB_TOKEN to access the API for retrieving previous workflow runs."
+    required: true
 outputs:
   force_continued:
     description: "True if continue-after-seconds is used and the step using turnstyle continued. False otherwise."

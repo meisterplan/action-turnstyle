@@ -4,7 +4,7 @@ import { parseInput } from "./input";
 import { OctokitGitHub } from "./github";
 import { Waiter } from "./wait";
 
-async function run() {
+(async () => {
   try {
     const input = parseInput(env);
     const github = new OctokitGitHub(input.githubToken);
@@ -18,8 +18,4 @@ async function run() {
   } catch (error) {
     setFailed(error.message);
   }
-}
-
-if (require.main === module) {
-  run();
-}
+})();
