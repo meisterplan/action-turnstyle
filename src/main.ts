@@ -16,6 +16,10 @@ import { Waiter } from "./wait";
       await new Waiter(workflow_id, github, input, info).wait();
     }
   } catch (error) {
-    setFailed(error.message);
+    if (error instanceof Error) {
+      setFailed(error.message);
+    } else {
+      setFailed(error?.toString() ?? "Failed with unknown error!");
+    }
   }
 })();

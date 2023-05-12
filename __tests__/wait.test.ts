@@ -33,7 +33,7 @@ describe("wait", () => {
         const inProgressRun = {
           id: 1,
           status: "in_progress",
-          html_url: "",
+          html_url: "https://run.test",
         };
         const githubClient = {
           runs: async (
@@ -57,8 +57,8 @@ describe("wait", () => {
         );
         assert.equal(await waiter.wait(), 1);
         assert.deepEqual(messages, [
-          "✋Awaiting run  ...",
-          "🤙Exceeded wait seconds. Continuing...",
+          "✋ 1 uncompleted runs. Awaiting run https://run.test to complete (currently in_progress)...",
+          "🤙 Exceeded wait seconds. Continuing...",
         ]);
       });
 
@@ -67,7 +67,7 @@ describe("wait", () => {
         const inProgressRun = {
           id: 1,
           status: "in_progress",
-          html_url: "",
+          html_url: "https://run.test",
         };
         const githubClient = {
           runs: async (
@@ -94,8 +94,8 @@ describe("wait", () => {
           message: "Aborted after waiting 1 seconds",
         });
         assert.deepEqual(messages, [
-          "✋Awaiting run  ...",
-          "🛑Exceeded wait seconds. Aborting...",
+          "✋ 1 uncompleted runs. Awaiting run https://run.test to complete (currently in_progress)...",
+          "🛑 Exceeded wait seconds. Aborting...",
         ]);
       });
 
@@ -103,7 +103,7 @@ describe("wait", () => {
         const run: Run = {
           id: 1,
           status: "in_progress",
-          html_url: "1",
+          html_url: "https://run.test",
         };
 
         const mockedRunsFunc = jest
@@ -126,7 +126,10 @@ describe("wait", () => {
           }
         );
         await waiter.wait();
-        assert.deepEqual(messages, ["✋Awaiting run 1 ..."]);
+        assert.deepEqual(messages, [
+          "✋ 1 uncompleted runs. Awaiting run https://run.test to complete (currently in_progress)...",
+          "✅ No uncompleted runs. Continuing...",
+        ]);
       });
 
       it("will wait for all previous runs", async () => {
@@ -187,10 +190,12 @@ describe("wait", () => {
         // Verify that the last message printed is that the latest previous run
         // is complete and not the oldest one.
         const latestPreviousRun = inProgressRuns[inProgressRuns.length - 1];
-        assert.deepEqual(
-          messages[messages.length - 1],
-          `✋Awaiting run ${input.runId - 1} ...`
-        );
+        assert.deepEqual(messages.slice(messages.length - 2), [
+          `✋ 3 uncompleted runs. Awaiting run ${
+            input.runId - 1
+          } to complete (currently in_progress)...`,
+          "✅ No uncompleted runs. Continuing...",
+        ]);
       });
     });
   });

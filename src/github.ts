@@ -8,7 +8,7 @@ export interface Workflow {
 
 export interface Run {
   id: number;
-  status: string;
+  status: string | null;
   html_url: string;
 }
 
@@ -49,10 +49,11 @@ export class OctokitGitHub implements GitHub {
   }
 
   workflows = async (owner: string, repo: string) => {
-    const options: RestEndpointMethodTypes["actions"]["listRepoWorkflows"]["parameters"] = {
-      owner,
-      repo,
-    };
+    const options: RestEndpointMethodTypes["actions"]["listRepoWorkflows"]["parameters"] =
+      {
+        owner,
+        repo,
+      };
     return this.octokit.paginate<Workflow>(
       this.octokit.actions.listRepoWorkflows.endpoint.merge(options)
     );
@@ -64,13 +65,14 @@ export class OctokitGitHub implements GitHub {
     branch: string | undefined,
     workflow_id: number
   ) => {
-    const options: RestEndpointMethodTypes["actions"]["listWorkflowRuns"]["parameters"] = {
-      owner,
-      repo,
-      workflow_id,
-      branch,
-      per_page: 100,
-    };
+    const options: RestEndpointMethodTypes["actions"]["listWorkflowRuns"]["parameters"] =
+      {
+        owner,
+        repo,
+        workflow_id,
+        branch,
+        per_page: 100,
+      };
     return (await this.octokit.actions.listWorkflowRuns(options)).data
       .workflow_runs;
   };

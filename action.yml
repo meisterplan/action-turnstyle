@@ -3,7 +3,7 @@ name: 'action turnstyle'
 description: 'A GitHub Action for serializing workflow runs'
 author: 'softprops'
 runs:
-  using: 'node12'
+  using: 'node16'
   main: 'dist/index.js'
 inputs:
   poll-interval-seconds:
