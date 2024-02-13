@@ -45,7 +45,7 @@ export class OctokitGitHub {
         owner,
         repo,
         workflow_id,
-        status: "in_progress",
+        per_page: 100,
       };
 
     if (branch) {
