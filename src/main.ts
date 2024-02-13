@@ -26,7 +26,11 @@ async function run() {
       setFailed(`No workflow found matching workflow_id: ${workflow_id}`);
     }
   } catch (error: any) {
-    setFailed(error.message);
+    if (error instanceof Error) {
+      setFailed(error.message);
+    } else {
+      setFailed(error?.toString() ?? "Failed with unknown error!");
+    }
   }
 }
 
